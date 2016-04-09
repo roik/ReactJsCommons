@@ -1,8 +1,6 @@
 #!/bin/bash
 
-protected_branches=("master" "release")
-
-
+protected_branches="^(master|release-*)"
 policy='[Policy] Never force push or delete the '$protected_branch' branch! (Prevented with pre-push hook.)'
 
 current_branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
@@ -12,48 +10,15 @@ do_exit(){
   exit 1
 }
 
-check_branch(){
-
-    protected_branch = $1
-    will_remove_protected_branch=':'$protected_branch
-	if [[ $push_command =~ $is_destructive ]] && [ $current_branch = $protected_branch ]; then
-	  do_exit
-	fi
-
-	if [[ $push_command =~ $is_destructive ]] && [[ $push_command =~ $protected_branch ]]; then
-	  do_exit
-	fi
-
-	if [[ $push_command =~ $will_remove_protected_branch ]]; then
-	  do_exit
-	fi
-
-	# Prevents makes sure while you are on different branch, you don't push to protected branch
-	if [ $current_branch != $protected_branch ] && [[ $push_command =~ $protected_branch ]]; then
-	  do_exit
-	fi
-}
-
-for protected_branch in "${protected_branches[@]}"
+while read local_ref local_sha remote_ref remote_sha
 do
-        will_remove_protected_branch=':'$protected_branch
-    	if [[ $push_command =~ $is_destructive ]] && [ $current_branch = $protected_branch ]; then
-    	  do_exit
-    	fi
-
-    	if [[ $push_command =~ $is_destructive ]] && [[ $push_command =~ $protected_branch ]]; then
-    	  do_exit
-    	fi
-
-    	if [[ $push_command =~ $will_remove_protected_branch ]]; then
-    	  do_exit
-    	fi
-
-    	# Prevents makes sure while you are on different branch, you don't push to protected branch
-    	if [ $current_branch != $protected_branch ] && [[ $push_command =~ $protected_branch ]]; then
-    	  do_exit
-    	fi
+	remote_branch = $remote_ref
+	if [[ $current_branch =~ $protected_branches ]] || [[ $remote_ref =~ $protected_branches ]]; then
+		do_exit
+	fi
 done
+
+
 
 unset do_exit
 
