@@ -15,6 +15,7 @@ do_exit(){
 
 check_branch(){
 
+
     protected_branch = $1
     will_remove_protected_branch=':'$protected_branch
 	if [[ $push_command =~ $is_destructive ]] && [ $current_branch = $protected_branch ]; then
