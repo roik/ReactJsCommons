@@ -1,0 +1,25 @@
+#!/bin/bash
+
+protected_branches="^(master|release-*)"
+policy='[Policy] Never force push or delete the '$protected_branch' branch! (Prevented with pre-push hook.)'
+
+current_branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
+
+do_exit(){
+  echo $policy
+  exit 1
+}
+
+while read local_ref local_sha remote_ref remote_sha
+do
+	remote_branch = $remote_ref
+	if [[ $current_branch =~ $protected_branches ]] || [[ $remote_ref =~ $protected_branches ]]; then
+		do_exit
+	fi
+done
+
+
+
+unset do_exit
+
+exit 0
